@@ -15,7 +15,7 @@
     ],
     "repository": {
       "type": "git",
-      "url": "https://github.com/PiFou86/UtilifyDigitalInput.git"
+      "url": "https://github.com/PiFou86/UtilifyAnalogInput.git"
     },
     "license": "MIT",
     "frameworks": ["arduino"],

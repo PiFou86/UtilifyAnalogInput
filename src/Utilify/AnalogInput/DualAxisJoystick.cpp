@@ -43,7 +43,8 @@ DualAxisJoystick::DualAxisJoystick(const uint8_t& pinX, const uint8_t& pinY,
                                    ActionBase<float>* actionValueChangedX,
                                    ActionBase<float>* actionValueChangedY,
                                    ActionBase<void>* actionButtonPressed,
-                                   ActionBase<void>* actionButtonReleased)
+                                   ActionBase<void>* actionButtonReleased,
+                                   bool invertX, bool invertY)
     : m_joystickX(pinX),
       m_joystickY(pinY),
       m_button(pinButton, actionButtonReleased),
@@ -57,7 +58,9 @@ DualAxisJoystick::DualAxisJoystick(const uint8_t& pinX, const uint8_t& pinY,
       m_actionValueChangedY(actionValueChangedY),
       m_callbackValueChangedX(nullptr),
       m_callbackValueChangedY(nullptr),
-      m_calibrating(false) {
+      m_calibrating(false),
+      m_invertX(invertX),
+      m_invertY(invertY) {
   m_button.callbackKeyDown(actionButtonPressed);
   m_joystickX.setActionValueChanged(new DualAxisJoystickActionXChanged(*this));
   m_joystickY.setActionValueChanged(new DualAxisJoystickActionYChanged(*this));
@@ -69,7 +72,8 @@ DualAxisJoystick::DualAxisJoystick(
     const uint8_t& pinX, const uint8_t& pinY, const uint8_t& pinButton,
     CallbackWithParam<float> callbackValueChangedX,
     CallbackWithParam<float> callbackValueChangedY,
-    Callback callbackButtonPressed, Callback callbackButtonReleased)
+    Callback callbackButtonPressed, Callback callbackButtonReleased,
+    bool invertX, bool invertY)
     : m_joystickX(pinX),
       m_joystickY(pinY),
       m_button(pinButton, callbackButtonReleased),
@@ -83,7 +87,9 @@ DualAxisJoystick::DualAxisJoystick(
       m_actionValueChangedY(nullptr),
       m_callbackValueChangedX(callbackValueChangedX),
       m_callbackValueChangedY(callbackValueChangedY),
-      m_calibrating(false) {
+      m_calibrating(false),
+      m_invertX(invertX),
+      m_invertY(invertY) {
   m_button.callbackKeyDown(callbackButtonPressed);
   m_joystickX.setActionValueChanged(new DualAxisJoystickActionXChanged(*this));
   m_joystickY.setActionValueChanged(new DualAxisJoystickActionYChanged(*this));

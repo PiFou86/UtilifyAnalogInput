@@ -49,7 +49,7 @@ void setup() {
 #endif
 
 #ifdef JOYSTICK
-Serial.println("Initializing joystick...");
+    Serial.println("Initializing joystick...");
     joystick = new DualAxisJoystick(A1, A0, 2,
         [](const float& valueX) {
             Serial.print("Joystick X value: ");
@@ -64,9 +64,9 @@ Serial.println("Initializing joystick...");
         },
         []() {
             Serial.println("Joystick button released");
-        });
+        }, true, false); // Invert X axis, do not invert Y axis
 
-        Serial.println("Joystick initialized.");
+    Serial.println("Joystick initialized.");
 #endif
 }
 

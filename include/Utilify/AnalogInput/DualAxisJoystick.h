@@ -19,35 +19,50 @@ class DualAxisJoystick : public TaskBase {
                    ActionBase<float>* actionValueChangedX = nullptr,
                    ActionBase<float>* actionValueChangedY = nullptr,
                    ActionBase<void>* actionButtonPressed = nullptr,
-                   ActionBase<void>* actionButtonReleased = nullptr);
+                   ActionBase<void>* actionButtonReleased = nullptr,
+                   bool invertX = false, bool invertY = false);
   DualAxisJoystick(const uint8_t& pinX, const uint8_t& pinY,
                    const uint8_t& pinButton,
                    CallbackWithParam<float> actionValueChangedX,
                    CallbackWithParam<float> actionValueChangedY,
-                   Callback actionButtonPressed, Callback actionButtonReleased);
+                   Callback actionButtonPressed, Callback actionButtonReleased,
+                   bool invertX = false, bool invertY = false);
 
   virtual void calibrate(Callback callbackCalibrating,
                          Callback callbackCalibrated);
   virtual void calibrate(ActionBase<void>* callbackCalibrating = nullptr,
                          ActionBase<void>* callbackCalibrated = nullptr);
   inline float valueX() const {
-    return (m_joystickX.value() > m_centerXValue)
+    float res =  (m_joystickX.value() > m_centerXValue)
                ? (float)((NORMALIZE_ANALOG_VALUE_TO_1023(m_joystickX.value()) -
                           m_centerXValue)) /
                      (m_maxXValue - m_centerXValue)
                : (m_centerXValue -
                   (float)NORMALIZE_ANALOG_VALUE_TO_1023(m_joystickX.value())) /
                      (m_minXValue - m_centerXValue);
+
+    if (m_invertX) {
+      res = -res;
+    }
+    return res;
   }
   inline float valueY() const {
-    return (m_joystickY.value() > m_centerYValue)
+    float res = (m_joystickY.value() > m_centerYValue)
                ? (float)((NORMALIZE_ANALOG_VALUE_TO_1023(m_joystickY.value()) -
                           m_centerYValue)) /
                      (m_maxYValue - m_centerYValue)
                : (m_centerYValue -
                   (float)NORMALIZE_ANALOG_VALUE_TO_1023(m_joystickY.value())) /
                      (m_minYValue - m_centerYValue);
+
+    if (m_invertY) {
+      res = -res;
+    }
+    return res;
   }
+
+  inline void invertX(bool invert) { m_invertX = invert; }
+  inline void invertY(bool invert) { m_invertY = invert; }
 
   inline void tick() override {
     m_joystickX.tick();
@@ -71,6 +86,9 @@ class DualAxisJoystick : public TaskBase {
   CallbackWithParam<float> m_callbackValueChangedY;
 
   bool m_calibrating = false;
+
+  bool m_invertX = false;
+  bool m_invertY = false;
 
   void _calibrate();
 
