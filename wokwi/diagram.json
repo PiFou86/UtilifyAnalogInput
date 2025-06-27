@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "author": "Léon Pierre-François",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 67.8, "left": -19.8, "attrs": {} },
+    {
+      "type": "wokwi-analog-joystick",
+      "id": "joystick1",
+      "top": -96.6,
+      "left": 101.4,
+      "attrs": {}
+    }
+  ],
+  "connections": [
+    [ "uno:GND.1", "joystick1:GND", "black", [ "v-19.2", "h77.1", "v-9.6" ] ],
+    [ "joystick1:VCC", "uno:3.3V", "red", [ "v28.8", "h-172.8", "v230.4", "h163.2" ] ],
+    [ "joystick1:SEL", "uno:2", "blue", [ "v38.4", "h57.6" ] ],
+    [ "joystick1:VERT", "uno:A0", "green", [ "v19.2", "h134.4", "v249.6", "h-96" ] ],
+    [ "joystick1:HORZ", "uno:A1", "violet", [ "v28.8", "h115.2", "v230.4", "h-67.2" ] ]
+  ],
+  "dependencies": {}
+}
