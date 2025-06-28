@@ -28,7 +28,11 @@ DualAxisJoystick* joystick = nullptr;
 #endif
 
 void setup() {
+#ifdef ARDUINO_ARCH_AVR
     Serial.begin(9600);
+#else
+    Serial.begin(115200);
+#endif
     while (!Serial) {
         ; // Wait for Serial to be ready
     }
