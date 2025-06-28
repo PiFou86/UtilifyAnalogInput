@@ -27,7 +27,7 @@ board = uno
 monitor_speed = 9600
 lib_deps =
     sirdrako/Utilify
-    sirdrako/UtilifyDigitalInput.git
+    sirdrako/UtilifyDigitalInput
     sirdrako/UtilifyAnalogInput
 
 [env:esp32doit-devkit-v1]
@@ -36,7 +36,7 @@ board = esp32doit-devkit-v1
 monitor_speed = 115200
 lib_deps =
     sirdrako/Utilify
-    sirdrako/UtilifyDigitalInput.git
+    sirdrako/UtilifyDigitalInput
     sirdrako/UtilifyAnalogInput
 monitor_filters = esp32_exception_decoder
 ```
