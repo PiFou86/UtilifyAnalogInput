@@ -139,6 +139,7 @@ The library depends on the following:
 
 ## Author
 
-**Pierre-François Léon @PiFou86** 
-🔗 [Linkedin](https://www.linkedin.com/in/pierrefrancoisleon/)  
-🔗 [GitHub Profile](https://github.com/PiFou86)
+**Pierre-François Léon**
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin&style=for-the-badge)](https://www.linkedin.com/in/pierrefrancoisleon/)
+[![GitHub profile](https://img.shields.io/badge/GitHub-Profile-blue?logo=github&style=for-the-badge)](https://github.com/PiFou86)
