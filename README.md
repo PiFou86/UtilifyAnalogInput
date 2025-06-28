@@ -2,6 +2,10 @@
 
 **UtilifyAnalogInput** is a library that provides a versatile collection of analog inputs for **Arduino** and **ESP32** platforms. Designed to simplify sensor management, it offers reliable detection of value changes and integrates seamlessly with the **Utilify** library.
 
+This library includes support for various analog input devices, such as potentiometers and dual-axis joysticks, allowing developers to easily read and respond to analog signals in their embedded applications.
+
+[![PlatformIO Registry](https://badges.registry.platformio.org/packages/sirdrako/library/UtilifyAnalogInput.svg)](https://registry.platformio.org/libraries/sirdrako/UtilifyAnalogInput)
+
 ## Features
 
 - **Analog Input Management**: Easily manage multiple analog inputs with configurable thresholds and callbacks.
