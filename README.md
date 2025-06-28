@@ -21,24 +21,10 @@ This library includes support for various analog input devices, such as potentio
 To add **UtilifyAnalogInput** to your PlatformIO project, include the library in your `platformio.ini` file:
 
 ```ini
-[env:uno]
-platform = atmelavr
-board = uno
-monitor_speed = 9600
 lib_deps =
     sirdrako/Utilify
     sirdrako/UtilifyDigitalInput
     sirdrako/UtilifyAnalogInput
-
-[env:esp32doit-devkit-v1]
-platform = espressif32
-board = esp32doit-devkit-v1
-monitor_speed = 115200
-lib_deps =
-    sirdrako/Utilify
-    sirdrako/UtilifyDigitalInput
-    sirdrako/UtilifyAnalogInput
-monitor_filters = esp32_exception_decoder
 ```
 
 ### Basic Usage
