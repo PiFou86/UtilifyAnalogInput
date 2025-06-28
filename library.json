@@ -1,6 +1,6 @@
 {
     "name": "UtilifyAnalogInput",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Utilify provides a collection of versatile analog inputs for Arduino and ESP32 platforms.",
     "keywords": ["analog", "input", "potentiometer", "joystick", "embedded", "platformio", "arduino", "esp32"],
     "authors": [
