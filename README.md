@@ -39,7 +39,7 @@ monitor_filters = esp32_exception_decoder
 
 ### Basic Usage
 
-Include the library in your project and set up your callbacks to respond to various pushbutton events:
+Include the library in your project and set up your callbacks to respond to various analog input events:
 
 ```cpp
 #include <Arduino.h>
