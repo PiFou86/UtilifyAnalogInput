@@ -1,7 +1,8 @@
 {
+    "$schema": "https://raw.githubusercontent.com/platformio/platformio-core/develop/platformio/assets/schema/library.json",
     "name": "UtilifyAnalogInput",
     "version": "1.0.10",
-    "description": "Utilify provides a collection of versatile analog inputs for Arduino and ESP32 platforms.",
+    "description": "Analog input helpers for Arduino and ESP32, including potentiometers, joysticks, thresholds, filtering, and resolution normalization.",
     "keywords": ["analog", "input", "potentiometer", "joystick", "embedded", "platformio", "arduino", "esp32"],
     "authors": [
       {
@@ -10,9 +11,7 @@
         "maintainer": true
       }
     ],
-    "excludeFiles": [
-      "main.cpp"
-    ],
+    "homepage": "https://github.com/PiFou86/UtilifyAnalogInput",
     "repository": {
       "type": "git",
       "url": "https://github.com/PiFou86/UtilifyAnalogInput.git"
@@ -24,17 +23,23 @@
       "espressif32",
       "renesas-ra"
     ],
+    "export": {
+      "include": [
+        "include",
+        "src",
+        "examples"
+      ]
+    },
     "dependencies": [ 
       {
+        "owner": "sirdrako",
         "name": "Utilify",
-        "url": "https://github.com/PiFou86/Utilify.git",
-        "version": "main"
+        "version": "^1.0.10"
       },
       {
+        "owner": "sirdrako",
         "name": "UtilifyDigitalInput",
-        "url": "https://github.com/PiFou86/UtilifyDigitalInput.git",
-        "version": "main"
+        "version": "^1.0.10"
       }
     ]
 }
-  
