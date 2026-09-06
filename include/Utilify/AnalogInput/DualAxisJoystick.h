@@ -7,11 +7,28 @@
 
 /*
  * DualAxisJoystick class for reading analog values from two potentiometer pins.
- * It normalizes the values to a range of -512 to 511.
- * Inherits from AnalogInput.
+ * It normalizes each axis to a range of approximately -1.0 to 1.0.
  */
-class DualAxisJoystickActionXChanged;
-class DualAxisJoystickActionYChanged;
+class DualAxisJoystick;
+
+class DualAxisJoystickActionXChanged : public ActionBase<int> {
+ public:
+  explicit DualAxisJoystickActionXChanged(DualAxisJoystick& joystick);
+  void execute(const int&) override;
+
+ private:
+  DualAxisJoystick& m_joystick;
+};
+
+class DualAxisJoystickActionYChanged : public ActionBase<int> {
+ public:
+  explicit DualAxisJoystickActionYChanged(DualAxisJoystick& joystick);
+  void execute(const int&) override;
+
+ private:
+  DualAxisJoystick& m_joystick;
+};
+
 class DualAxisJoystick : public TaskBase {
  public:
   DualAxisJoystick(const uint8_t& pinX, const uint8_t& pinY,
@@ -33,13 +50,15 @@ class DualAxisJoystick : public TaskBase {
   virtual void calibrate(ActionBase<void>* callbackCalibrating = nullptr,
                          ActionBase<void>* callbackCalibrated = nullptr);
   inline float valueX() const {
-    float res =  (m_joystickX.value() > m_centerXValue)
-               ? (float)((NORMALIZE_ANALOG_VALUE_TO_1023(m_joystickX.value()) -
-                          m_centerXValue)) /
-                     (m_maxXValue - m_centerXValue)
-               : (m_centerXValue -
-                  (float)NORMALIZE_ANALOG_VALUE_TO_1023(m_joystickX.value())) /
-                     (m_minXValue - m_centerXValue);
+    const int value = NORMALIZE_ANALOG_VALUE_TO_1023(m_joystickX.value());
+    float res = 0.0F;
+    if (value > m_centerXValue && m_maxXValue > m_centerXValue) {
+      res = (float)(value - m_centerXValue) /
+            (m_maxXValue - m_centerXValue);
+    } else if (value < m_centerXValue && m_minXValue < m_centerXValue) {
+      res = (float)(m_centerXValue - value) /
+            (m_minXValue - m_centerXValue);
+    }
 
     if (m_invertX) {
       res = -res;
@@ -47,13 +66,15 @@ class DualAxisJoystick : public TaskBase {
     return res;
   }
   inline float valueY() const {
-    float res = (m_joystickY.value() > m_centerYValue)
-               ? (float)((NORMALIZE_ANALOG_VALUE_TO_1023(m_joystickY.value()) -
-                          m_centerYValue)) /
-                     (m_maxYValue - m_centerYValue)
-               : (m_centerYValue -
-                  (float)NORMALIZE_ANALOG_VALUE_TO_1023(m_joystickY.value())) /
-                     (m_minYValue - m_centerYValue);
+    const int value = NORMALIZE_ANALOG_VALUE_TO_1023(m_joystickY.value());
+    float res = 0.0F;
+    if (value > m_centerYValue && m_maxYValue > m_centerYValue) {
+      res = (float)(value - m_centerYValue) /
+            (m_maxYValue - m_centerYValue);
+    } else if (value < m_centerYValue && m_minYValue < m_centerYValue) {
+      res = (float)(m_centerYValue - value) /
+            (m_minYValue - m_centerYValue);
+    }
 
     if (m_invertY) {
       res = -res;
@@ -74,6 +95,8 @@ class DualAxisJoystick : public TaskBase {
   AnalogInput m_joystickX;
   AnalogInput m_joystickY;
   PushButton m_button;
+  DualAxisJoystickActionXChanged m_actionXChanged;
+  DualAxisJoystickActionYChanged m_actionYChanged;
   int m_maxXValue;
   int m_maxYValue;
   int m_minXValue;

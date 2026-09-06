@@ -21,17 +21,27 @@ class AnalogInput : public TaskBase {
 
   inline virtual int value() const { return m_value; }
 
-  inline virtual void tolerance(const int& tolerance) { m_tolerance = tolerance; }
+  inline virtual void tolerance(const int& tolerance) {
+    if (tolerance >= 0) {
+      m_tolerance = tolerance;
+    }
+  }
   inline virtual int tolerance() const { return m_tolerance; }
 
   void tick() override;
   inline virtual void setActionValueChanged(ActionBase<int>* actionValueChanged) {
     m_actionValueChanged = actionValueChanged;
+    m_callbackValueChanged = nullptr;
   }
   inline
   virtual void setCallbackValueChanged(CallbackWithParam<int> callbackValueChanged) {
     m_callbackValueChanged = callbackValueChanged;
+    m_actionValueChanged = nullptr;
   }
+
+ protected:
+  void notifyValueChanged();
+
  private:
   uint8_t m_pin;
   int m_value;
@@ -41,17 +51,30 @@ class AnalogInput : public TaskBase {
   ActionBase<int>* m_actionValueChanged = nullptr;
   CallbackWithParam<int> m_callbackValueChanged = nullptr;
 
-  void notifyValueChanged();
 };
 
-// return max value of analog input
-#ifdef ARDUINO_ARCH_AVR
-#define MAX_ANALOG_VALUE 1023
-#define NORMALIZE_ANALOG_VALUE_TO_1023(value) (value)
-#elif defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_ESP8266)
-#define MAX_ANALOG_VALUE 4095
-#define NORMALIZE_ANALOG_VALUE_TO_1023(value) (value >> 2)
+// Resolution returned by analogRead(). Override this define in the build flags
+// when the application configures another resolution.
+#ifndef UTILIFY_ANALOG_INPUT_BITS
+  #if defined(ARDUINO_ARCH_ESP32)
+    #define UTILIFY_ANALOG_INPUT_BITS 12
+  #else
+    #define UTILIFY_ANALOG_INPUT_BITS 10
+  #endif
+#endif
+
+#if UTILIFY_ANALOG_INPUT_BITS < 1 || UTILIFY_ANALOG_INPUT_BITS > 16
+  #error "UTILIFY_ANALOG_INPUT_BITS must be between 1 and 16"
+#endif
+
+#define MAX_ANALOG_VALUE ((1UL << UTILIFY_ANALOG_INPUT_BITS) - 1UL)
+
+#if UTILIFY_ANALOG_INPUT_BITS > 10
+  #define NORMALIZE_ANALOG_VALUE_TO_1023(value) \
+    ((value) >> (UTILIFY_ANALOG_INPUT_BITS - 10))
+#elif UTILIFY_ANALOG_INPUT_BITS < 10
+  #define NORMALIZE_ANALOG_VALUE_TO_1023(value) \
+    ((value) << (10 - UTILIFY_ANALOG_INPUT_BITS))
 #else
-#define MAX_ANALOG_VALUE 1023 // Default for other architectures
-#define NORMALIZE_ANALOG_VALUE_TO_1023(value) (value)
+  #define NORMALIZE_ANALOG_VALUE_TO_1023(value) (value)
 #endif

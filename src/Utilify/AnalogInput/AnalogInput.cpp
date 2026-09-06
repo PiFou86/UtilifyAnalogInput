@@ -41,8 +41,8 @@ void AnalogInput::tick() {
 
 void AnalogInput::notifyValueChanged() {
   if (m_actionValueChanged) {
-    m_actionValueChanged->execute(m_value);
+    m_actionValueChanged->execute(value());
   } else if (m_callbackValueChanged) {
-    m_callbackValueChanged(m_value);
+    m_callbackValueChanged(value());
   }
 }

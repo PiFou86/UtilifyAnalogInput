@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-tests:
+    name: Test ${{ matrix.environment }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        environment:
+          - native-unor3-tests
+          - native-esp32-tests
+          - native-esp32-9bit-tests
+          - native-esp32-10bit-tests
+          - native-esp32-16bit-tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install PlatformIO
+        run: pip install platformio==6.1.19
+      - name: Run native tests
+        run: pio test -e "${{ matrix.environment }}"
+
+  build-examples:
+    name: Build ${{ matrix.environment }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        environment:
+          - unor3
+          - esp32doit-devkit-v1
+          - unor4_minima
+          - unor4_wifi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install PlatformIO
+        run: pip install platformio==6.1.19
+      - name: Build example
+        run: pio run -e "${{ matrix.environment }}"

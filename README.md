@@ -1,145 +1,141 @@
 # UtilifyAnalogInput
 
-**UtilifyAnalogInput** is a library that provides a versatile collection of analog inputs for **Arduino** and **ESP32** platforms. Designed to simplify sensor management, it offers reliable detection of value changes and integrates seamlessly with the **Utilify** library.
+**Documentation:**
+[English](https://github.com/PiFou86/UtilifyAnalogInput/blob/main/docs/en/README.md) |
+[Français](https://github.com/PiFou86/UtilifyAnalogInput/blob/main/docs/fr/README.md)
 
-This library includes support for various analog input devices, such as potentiometers and dual-axis joysticks, allowing developers to easily read and respond to analog signals in their embedded applications.
+UtilifyAnalogInput provides cooperative analog-input handling for Arduino Uno
+R3, Arduino Uno R4, and ESP32. It includes raw analog inputs, normalized
+potentiometers, and calibrated two-axis joysticks with callbacks or Utilify
+actions.
 
+[![CI](https://github.com/PiFou86/UtilifyAnalogInput/actions/workflows/ci.yml/badge.svg)](https://github.com/PiFou86/UtilifyAnalogInput/actions/workflows/ci.yml)
 [![PlatformIO Registry](https://badges.registry.platformio.org/packages/sirdrako/library/UtilifyAnalogInput.svg)](https://registry.platformio.org/libraries/sirdrako/UtilifyAnalogInput)
 
 ## Features
 
-- **Analog Input Management**: Easily manage multiple analog inputs with configurable thresholds and callbacks.
-- **Potentiometer Support**: Includes a Potentiometer class for reading and interpreting analog values.
-- **DualAxisJoystick Support**: Provides a DualAxisJoystick class for reading joystick movements.
-- **Wide Compatibility**: Works on **Arduino** (Atmel AVR) and **ESP32** as well as other supported platforms.
-- **Easy Integration**: Easily integrates into your PlatformIO projects.
+- Raw `AnalogInput` readings with tolerance-based change detection.
+- `Potentiometer` values normalized to a 10-bit domain.
+- `DualAxisJoystick` values normalized to approximately `-1.0` through `1.0`.
+- Joystick calibration, axis inversion, and push-button events.
+- Function callbacks and non-owning `ActionBase` objects.
+- Compile-time ADC resolution conversion with no runtime configuration lookup.
+- Cooperative polling without interrupts or background threads.
 
-## Getting Started
+## Installation
 
-### Installation
-
-To add **UtilifyAnalogInput** to your PlatformIO project, include the library in your `platformio.ini` file:
+### PlatformIO
 
 ```ini
+[env:unor3]
+platform = atmelavr
+board = uno
+framework = arduino
 lib_deps =
-    sirdrako/Utilify
-    sirdrako/UtilifyDigitalInput
     sirdrako/UtilifyAnalogInput
 ```
 
-### Basic Usage
+PlatformIO installs the declared Utilify and UtilifyDigitalInput dependencies.
 
-Include the library in your project and set up your callbacks to respond to various analog input events:
+### Arduino IDE
+
+Install UtilifyAnalogInput, UtilifyDigitalInput, and Utilify with Library
+Manager. Alternatively, place all three repositories in the sketchbook
+`libraries` directory and restart the IDE.
+
+## Quick start
 
 ```cpp
 #include <Arduino.h>
-#include <Utilify/AnalogInput/AnalogInput.h>
 #include <Utilify/AnalogInput/Potentiometer.h>
 
-#include <Utilify/AnalogInput/DualAxisJoystick.h>
-
-//#define POTENTIOMETER
-#define JOYSTICK
-
-#ifdef POTENTIOMETER
-AnalogInput* potentiometerVert = nullptr;
-AnalogInput* potentiometerHorz = nullptr;
-#endif
-
-#ifdef JOYSTICK
-DualAxisJoystick* joystick = nullptr;
-#endif
-
-void setup() {
-#ifdef ARDUINO_ARCH_AVR
-    Serial.begin(9600);
-#else
-    Serial.begin(115200);
-#endif
-    while (!Serial) {
-        ; // Wait for Serial to be ready
-    }
-
-#ifdef POTENTIOMETER
-    Serial.println("Initializing potentiometers...");
-    potentiometerVert = new AnalogInput(A0, [](const int& value) {
-        Serial.print("Potentiometer vertical value: ");
-        Serial.println(value);
-    });
-     potentiometerVert->tolerance(5); // Set tolerance for value change detection
-
-    potentiometerHorz = new AnalogInput(A1, [](const int& value) {
-        Serial.print("Potentiometer horizontal value: ");
-        Serial.println(value);
-    }); 
-    potentiometerHorz->tolerance(5); // Set tolerance for value change detection
-#endif
-
-#ifdef JOYSTICK
-    Serial.println("Initializing joystick...");
-    joystick = new DualAxisJoystick(A1, A0, 2,
-        [](const float& valueX) {
-            Serial.print("Joystick X value: ");
-            Serial.println(valueX);
-        },
-        [](const float& valueY) {
-            Serial.print("Joystick Y value: ");
-            Serial.println(valueY);
-        },
-        []() {
-            Serial.println("Joystick button pressed");
-        },
-        []() {
-            Serial.println("Joystick button released");
-        }, true, false); // Invert X axis, do not invert Y axis
-
-    Serial.println("Joystick initialized.");
-#endif
+void valueChanged(const int& value) {
+  Serial.println(value);
 }
 
-bool isCalibrated = false;
-void loop() {
-#ifdef POTENTIOMETER
-    potentiometerVert->tick();
-    potentiometerHorz->tick();
-#endif
+Potentiometer* potentiometer = nullptr;
 
-#ifdef JOYSTICK
-    if (!isCalibrated) {
-        joystick->calibrate([]() {
-            Serial.println("Calibrating joystick...");
-        }, []() {
-            Serial.println("Joystick calibration complete.");
-            isCalibrated = true;
-        });
-    }
-   joystick->tick();
-#endif
+void setup() {
+  Serial.begin(9600);
+  potentiometer = new Potentiometer(A0, valueChanged);
+  potentiometer->tolerance(4);
+}
+
+void loop() {
+  potentiometer->tick();
 }
 ```
 
-When you run this code, it initializes either a potentiometer or a joystick, depending on which section is uncommented. The values from the analog inputs are printed to the Serial Monitor whenever they change beyond the defined tolerance.
+The callback is also invoked once by the constructor with the initial reading.
+Call `tick()` frequently; the library samples each analog input at most once
+every 5 ms.
 
-## Feature Overview
+## ADC resolution
 
-### Analog Input Management
+`AnalogInput` exposes the raw `analogRead()` result. `Potentiometer` and
+`DualAxisJoystick` convert that result to a 10-bit domain. Defaults are 10 bits
+on Arduino boards and 12 bits on ESP32.
 
-The library provides a unified interface for managing various analog input devices, including potentiometers and joysticks. You can easily create instances of these devices and set up callbacks to respond to value changes.
+If an application changes the returned resolution, configure both sides
+with the same value:
 
-### Integration with Utilify
+```ini
+build_flags =
+    -D UTILIFY_ANALOG_INPUT_BITS=11
+```
 
-UtilifyAnalogInput depends on the Utilify and UtilifyDigitalInput libraries, ensuring seamless integration with other utilities and facilitating the development of robust embedded applications.
+```cpp
+void setup() {
+  analogReadResolution(UTILIFY_ANALOG_INPUT_BITS);
+}
+```
 
-## Dependencies
+Values from 1 through 16 are accepted. Conversion uses compile-time shifts, so
+it adds no runtime resolution detection. Below 10 bits, the normalized maximum
+is slightly below 1023: 9-bit input reaches 1022, for example.
 
-The library depends on the following:
+## Supported platforms
 
-- [Utilify](https://github.com/PiFou86/Utilify): Core utilities for string manipulation, timer and device-specific operations.
-- [UtilifyDigitalInput](https://github.com/PiFou86/UtilifyDigitalInput): Utilities for managing digital input devices, including buttons and switches.
+| Capability | Uno R3 (AVR) | Uno R4 Minima/WiFi | ESP32 |
+|---|---|---|---|
+| Default returned ADC resolution | 10 bits | 10 bits | 12 bits |
+| Free functions and `static` methods | Yes | Yes | Yes |
+| Non-capturing lambdas | Yes | Yes | Yes |
+| Capturing lambdas | No | Yes | Yes |
+| `ActionBase<T>` | Yes | Yes | Yes |
 
-## Author
+## Documentation, examples, and tests
 
-**Pierre-François Léon**
+- [English documentation](https://github.com/PiFou86/UtilifyAnalogInput/blob/main/docs/en/README.md)
+- [Documentation française](https://github.com/PiFou86/UtilifyAnalogInput/blob/main/docs/fr/README.md)
+- [Uno R3 example](https://github.com/PiFou86/UtilifyAnalogInput/blob/main/examples/unor3/main.cpp)
+- [ESP32 example](https://github.com/PiFou86/UtilifyAnalogInput/blob/main/examples/esp32/main.cpp)
+- [Unit-test guide](https://github.com/PiFou86/UtilifyAnalogInput/blob/main/test/README.md)
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin&style=for-the-badge)](https://www.linkedin.com/in/pierrefrancoisleon/)
-[![GitHub profile](https://img.shields.io/badge/GitHub-Profile-blue?logo=github&style=for-the-badge)](https://github.com/PiFou86)
+Build an example from the command line:
+
+```sh
+pio run -e unor3
+pio run -e esp32doit-devkit-v1
+pio run -e unor4_minima
+pio run -e unor4_wifi
+```
+
+In VS Code, open the PlatformIO sidebar, expand **PROJECT TASKS**, select an
+environment, then choose **General > Build**. Use **Upload and Monitor** to run
+the example and inspect its serial output.
+
+## Lifetime and timing notes
+
+- Callback and action code runs synchronously inside the constructor or
+  `tick()` and should return quickly.
+- Action pointers are not owned; each action must outlive the input using it.
+- Joystick calibration blocks for 10 seconds while collecting extrema.
+- The default joystick button pin is 0; pass an explicit safe pin for the
+  selected board.
+
+## License and author
+
+Released under the MIT license. Created by Pierre-François Léon —
+[GitHub](https://github.com/PiFou86) ·
+[LinkedIn](https://www.linkedin.com/in/pierrefrancoisleon/)
